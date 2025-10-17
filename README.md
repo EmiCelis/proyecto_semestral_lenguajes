@@ -81,3 +81,5 @@ gana el numero mayor y pierde el más pequeño.
 ![Cartas](ASSETS/Cartas2.PNG)
 ![Fichas](ASSETS/Fichas_Jugadores.PNG)
 ![Tablero](ASSETS/Tablero.PNG)
+
+
