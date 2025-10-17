@@ -7,3 +7,10 @@
 ## Inventario de actividades: Arte y Logica del juego 
 
 
+## Santiago Guillermo Oropeza Reyes
+![Fotomia](ASSETS/Captura%20de%20pantalla%202025-10-17%20123055.png)
+## Rol: Diseño de los eventos en los minijuegos
+
+## Inventario de actividades: Game Design
+
+ 
