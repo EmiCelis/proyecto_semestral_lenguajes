@@ -14,3 +14,8 @@
 ## Inventario de actividades: Game Design
 
  
+## Juan Alex España Hernandez
+![Foto](/ASSETS/Snapchat-74448992.jpg)
+## Rol: Diseñador de Ui
+
+## Inventario de actividades: Diseñador de interfaces dentro del juego
