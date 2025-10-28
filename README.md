@@ -82,4 +82,13 @@ gana el numero mayor y pierde el más pequeño.
 ![Fichas](ASSETS/Fichas_Jugadores.PNG)
 ![Tablero](ASSETS/Tablero.PNG)
 
+## Prototipado
+
+### Enlace a Diagrama de Flujo
+
+[Diagrama](https://app.diagrams.net/#G1zgcT0wZQZ46aV5CskNAuEZ0E8Y0BljH_#%7B"pageId"%3A"2_yWluqML3qD_DhOYNTh"%7D)
+
+### Enlace a Wireframe Prototipo 
+
+[Wireframe](https://www.figma.com/design/NYiNH9XIPe946x1aG7kvwS/Wireframe-LeakRangers?node-id=18-335&t=j6thM6cJDfznv0j4-1)
 
