@@ -3,6 +3,7 @@
 ## Emiliano Sanchez Celis
 ![Imagen](ASSETS/Emi_Photo.PNG)
 ## Rol: Programador del proyecto y Diseñador de los assets y elementos
+## Logica y contexto del juego adjunto a un prototipado web del mismo.
 
 ## Inventario de actividades: Arte y Logica del juego 
 
@@ -10,13 +11,13 @@
 ## Santiago Guillermo Oropeza Reyes
 ![Fotomia](ASSETS/Captura%20de%20pantalla%202025-10-17%20123055.png)
 ## Rol: Diseño de los eventos en los minijuegos
-
+## Ejemplos del juego y codigo pro medio de Grok usando de base nuesstro diagrama de flujo.
 ## Inventario de actividades: Game Design
 
  
 ## Juan Alex España Hernandez
 ![Foto](/ASSETS/Snapchat-74448992.jpg)
 ## Rol: Diseñador de Ui
-## Reglas y documentacion del juego
+## Reglas y documentacion del juego.
 
 ## Inventario de actividades: Diseñador de interfaces dentro del juego
