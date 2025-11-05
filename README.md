@@ -92,6 +92,8 @@ gana el numero mayor y pierde el más pequeño.
 
 [Wireframe](https://www.figma.com/design/NYiNH9XIPe946x1aG7kvwS/Wireframe-LeakRangers?node-id=18-335&t=j6thM6cJDfznv0j4-1)
 
+[Grok](https://grok.com/share/c2hhcmQtNA%3D%3D_ebd48b32-f6f2-46ec-b443-7f322b092a08)
+[Firebase Studio](https://studio.firebase.google.com/studio-8995521439)
 
 
 
