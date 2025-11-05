@@ -17,5 +17,6 @@
 ## Juan Alex España Hernandez
 ![Foto](/ASSETS/Snapchat-74448992.jpg)
 ## Rol: Diseñador de Ui
+## Reglas y documentacion del juego
 
 ## Inventario de actividades: Diseñador de interfaces dentro del juego
