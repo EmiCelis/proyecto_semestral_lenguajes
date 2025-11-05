@@ -94,7 +94,13 @@ gana el numero mayor y pierde el más pequeño.
 
 ### Listado de IAs
 [Grok](https://grok.com/share/c2hhcmQtNA%3D%3D_ebd48b32-f6f2-46ec-b443-7f322b092a08)
+
+[Codigo de Grok](ASSETS/Grok.txt)
+
 [Firebase Studio](https://studio.firebase.google.com/studio-8995521439)
+
+![juego prototipado](ASSETS/LeakRangers.PNG)
+
 
 
 

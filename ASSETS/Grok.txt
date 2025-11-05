@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leak Rangers</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #0a1f3d; color: #fff; overflow: hidden; }
+        #game-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        h1 { text-align: center; font-size: 3rem; margin-bottom: 20px; color: #00d4ff; text-shadow: 0 0 10px #00d4ff; }
+        
+        /* Pantallas */
+        .screen { display: none; position: relative; }
+        .screen.active { display: block; }
+
+        /* Inicio */
+        #start-screen { text-align: center; padding: 50px; }
+        #player-setup { margin: 30px 0; }
+        .player-input { margin: 15px 0; }
+        .player-input input { padding: 10px; font-size: 1.1rem; width: 200px; border-radius: 8px; border: none; }
+        button { 
+            background: #00d4ff; color: #0a1f3d; padding: 12px 30px; border: none; 
+            border-radius: 8px; font-size: 1.2rem; cursor: pointer; margin: 10px;
+            transition: all 0.3s; font-weight: bold;
+        }
+        button:hover { background: #00a8cc; transform: scale(1.05); }
+
+        /* Tablero */
+        #game-board { 
+            display: grid; 
+            grid-template-columns: repeat(10, 1fr); 
+            gap: 5px; 
+            max-width: 800px; 
+            margin: 20px auto; 
+            padding: 20px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+        .cell { 
+            width: 100%; height: 60px; 
+            background: #003366; border: 2px solid #005588; 
+            border-radius: 8px; display: flex; align-items: center; 
+            justify-content: center; font-size: 0.7rem; position: relative;
+            transition: all 0.3s;
+        }
+        .cell:hover { transform: scale(1.05); box-shadow: 0 0 15px #00d4ff; }
+        .cell.start { background: #00ff88; }
+        .cell.end { background: #ffcc00; }
+        .cell.question { background: #3366cc; }
+        .cell.challenge { background: #cc33cc; }
+        .cell.leak { background: #ff3333; }
+        .cell.superleak { background: #ff6600; }
+        .cell.joker { background: #ffcc00; }
+        .cell.normal { background: #003366; }
+
+        .player-token {
+            position: absolute; width: 25px; height: 25px; 
+            border-radius: 50%; border: 3px solid #fff; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.5); z-index: 10;
+            transition: all 0.5s ease;
+        }
+        .p1 { background: #ff3333; }
+        .p2 { background: #33cc33; }
+        .p3 { background: #3366ff; }
+        .p4 { background: #ffcc00; }
+
+        /* HUD */
+        #hud { 
+            display: flex; justify-content: space-between; 
+            background: rgba(0,0,0,0.5); padding: 15px; 
+            border-radius: 10px; margin-bottom: 20px;
+        }
+        .player-info { text-align: center; flex: 1; }
+        .player-info h3 { margin-bottom: 5px; }
+        .coins { font-size: 1.5rem; font-weight: bold; color: #00ff88; }
+
+        /* Dados */
+        #dice-container { text-align: center; margin: 20px 0; }
+        #dice { 
+            width: 80px; height: 80px; background: #fff; color: #000; 
+            font-size: 2rem; font-weight: bold; display: inline-flex;
+            align-items: center; justify-content: center; border-radius: 15px;
+            margin: 0 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            animation: roll 0.5s ease;
+        }
+        @keyframes roll {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        /* Modales */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); display: flex; align-items: center;
+            justify-content: center; z-index: 1000; display: none;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: #0a1f3d; padding: 30px; border-radius: 15px;
+            max-width: 600px; text-align: center; border: 3px solid #00d4ff;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+        }
+        .modal h2 { color: #00d4ff; margin-bottom: 20px; }
+        .options { margin: 20px 0; }
+        .option-btn {
+            display: block; width: 100%; margin: 10px 0; padding: 15px;
+            background: #003366; border: 2px solid #005588; border-radius: 8px;
+            font-size: 1.1rem; cursor: pointer; transition: all 0.3s;
+        }
+        .option-btn:hover { background: #005588; transform: scale(1.02); }
+        .option-btn.correct { background: #00aa00; }
+        .option-btn.wrong { background: #aa0000; }
+
+        /* Ruleta */
+        #roulette-container {
+            width: 300px; height: 300px; margin: 20px auto;
+            position: relative; border-radius: 50%; overflow: hidden;
+            border: 8px solid #00d4ff; box-shadow: 0 0 20px rgba(0,212,255,0.8);
+        }
+        #roulette {
+            width: 100%; height: 100%; transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+        }
+        .roulette-segment {
+            position: absolute; width: 50%; height: 50%; 
+            transform-origin: bottom right; clip-path: polygon(0 0, 100% 0, 0 100%);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; color: white; text-shadow: 1px 1px 2px black;
+        }
+        #roulette-arrow {
+            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; border-left: 15px solid transparent;
+            border-right: 15px solid transparent; border-bottom: 30px solid #ffcc00;
+            z-index: 10;
+        }
+
+        /* Timer */
+        #timer {
+            font-size: 2rem; font-weight: bold; color: #ffcc00;
+            text-align: center; margin: 15px 0;
+        }
+
+        /* Minijuegos */
+        #challenge-area { margin: 20px 0; }
+        canvas { border: 2px solid #00d4ff; border-radius: 8px; background: #001122; }
+
+        /* Resultado final */
+        #winner-screen { text-align: center; padding: 50px; }
+        #winner-name { font-size: 3rem; color: #00ff88; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>Leak Rangers</h1>
+
+        <!-- Pantalla de Inicio -->
+        <div id="start-screen" class="screen active">
+            <h2>¡Bienvenidos a Leak Rangers!</h2>
+            <p>Configura los jugadores (2-4):</p>
+            <div id="player-setup">
+                <div class="player-input">
+                    <label>Jugador 1: <input type="text" id="p1-name" placeholder="Nombre" value="Jugador 1"></label>
+                </div>
+                <div class="player-input">
+                    <label>Jugador 2: <input type="text" id="p2-name" placeholder="Nombre" value="Jugador 2"></label>
+                </div>
+                <div class="player-input">
+                    <label>Jugador 3: <input type="text" id="p3-name" placeholder="Nombre (opcional)"></label>
+                </div>
+                <div class="player-input">
+                    <label>Jugador 4: <input type="text" id="p4-name" placeholder="Nombre (opcional)"></label>
+                </div>
+            </div>
+            <button id="start-game">Iniciar Juego</button>
+        </div>
+
+        <!-- HUD -->
+        <div id="hud" class="screen"></div>
+
+        <!-- Tablero -->
+        <div id="game-screen" class="screen">
+            <div id="dice-container">
+                <button id="roll-dice" style="display:none;">Tirar Dado</button>
+                <div id="dice" style="display:none;">?</div>
+            </div>
+            <div id="game-board"></div>
+            <div id="status">Esperando turno...</div>
+        </div>
+
+        <!-- Pantalla de Ganador -->
+        <div id="winner-screen" class="screen">
+            <h2>¡Juego Terminado!</h2>
+            <div id="winner-name"></div>
+            <button id="play-again">Jugar de Nuevo</button>
+        </div>
+    </div>
+
+    <!-- Modales -->
+    <div id="question-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="question-text"></h2>
+            <div class="options" id="question-options"></div>
+            <p id="question-feedback" style="margin-top:15px; font-weight:bold;"></p>
+        </div>
+    </div>
+
+    <div id="challenge-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="challenge-title"></h2>
+            <p id="challenge-desc"></p>
+            <div id="challenge-area"></div>
+            <div id="timer"></div>
+            <button id="complete-challenge">¡Completado!</button>
+        </div>
+    </div>
+
+    <div id="superleak-modal" class="modal">
+        <div class="modal-content">
+            <h2>¡Super Fuga!</h2>
+            <p>Gira la ruleta para ver tu destino...</p>
+            <div id="roulette-container">
+                <div id="roulette-arrow"></div>
+                <div id="roulette"></div>
+            </div>
+            <button id="spin-roulette">Girar Ruleta</button>
+            <p id="roulette-result" style="margin-top:15px; font-weight:bold;"></p>
+        </div>
+    </div>
+
+    <div id="joker-modal" class="modal">
+        <div class="modal-content">
+            <h2>¡Comodín!</h2>
+            <p>Has obtenido un <strong>Comodín</strong>. Te protege de cualquier castigo.</p>
+            <button id="close-joker">Continuar</button>
+        </div>
+    </div>
+
+    <div id="leak-modal" class="modal">
+        <div class="modal-content">
+            <h2>¡Fuga Detectada!</h2>
+            <p>Has perdido <strong>3 AquaCoins</strong>.</p>
+            <button id="close-leak">Continuar</button>
+        </div>
+    </div>
+
+    <script>
+        // === DATOS DEL JUEGO ===
+        const QUESTIONS = [
+            { q: "Mientras sucede una escasez de agua ¿Qué harías con 20 litros?", a: ["Usar solo para lo esencial", "Usarla en todas las actividad", "Usar el agua para una guerra"], c: 0 },
+            { q: "¿Para que significa el 'agua potable' para ti?", a: ["Agua que usas para cualquier cosa", "Agua libre de gérmenes completamente saludable", "Agua que solo sirve para tomar"], c: 1 },
+            { q: "¿Cómo puedes ahorrar agua al lavarte los dientes?", a: ["Lavartelos rápido en tiempo record", "Con un solo vaso de agua", "No lavandote los dientes"], c: 1 },
+            { q: "Una industria contamina el agua local ¿Qué solución propones?", a: ["Implementar y tratamiento para los residuos", "Ayudar a verter los desechos al agua", "Presentar una demanda"], c: 0 },
+            { q: "¿Cómo educamos a los demás sobre la conservación del agua?", a: ["Enfocarse en reparar fugas", "Formular programas educativos", "Restringir su uso"], c: 1 },
+            { q: "¿Cómo evitamos una inundación en la comunidad", a: ["Construir barreras en zonas", "No hacer nada", "Desarrollar un plan entre toda la comunidad"], c: 2 },
+            { q: "¿Cómo almacenamos el agua durante la tormenta?", a: ["Poner un recipiente y un filtrador de agua", "Beber directamente el agua de la lluvia", "Dejar que el agua inunde tu casa"], c: 0 },
+            { q: "Tu mejor amigo se ducha por 20 minutos ¿Cómo lo convences de ahorrar el agua?", a: ["Regañar a tu mejor amigo y darle sermones", "Decirle que cerraran el agua y tiene que bañarse rápidamente", "Engañarlo con la idea de que no hay agua y evitar que se bañe"], c: 1 },
+            { q: "¿Qué harías si encuentras una fuga en la calle?", a: ["Poner tu auto encima para taparla", "Repararla tu mismo", "Reportarlo a las autoridades"], c: 2 },
+            { q: "¿Cuál es la mejor hora para regar el jardín?", a: ["En la mañana", "Tarde", "Noche"], c: 0 },
+            { q: "Tu lavadora está goteando ¿Qué es lo que harías?", a: ["Repararla en el momento", "Seguir usandola", "Poner un balde debajo"], c: 0 },
+            { q: "¿Cómo ahorrarías el agua al lavar tu auto?", a: ["No teniendo uno", "Usar una cubeta y esponja", "Lavarlo solo en épocas de lluvia"], c: 1 },
+            { q: "Tu vecino lava la banqueta todos los días ¿Qué harías?", a: ["Ayudarlo a lavar la banqueta", "Denunciarlo", "Usar una escoba en vez del agua"], c: 2 },
+            { q: "¿Qué harías con el agua de la lluvia?", a: ["Recolectarla para riego", "Dejar que siga su corriente", "Usarla para beber directamente"], c: 0 },
+            { q: "¿Cómo detectarías las fugas en tu casa?", a: ["Revisar el medidor", "Llamar a profesionales a que revisen la casa", "Dejar que suba el recibo"], c: 0 },
+            { q: "¿Qué harías con el agua después de cocer verduras?", a: ["Reutilizarla para regar las plantas", "Tirarla de una vez", "Guardarla"], c: 0 },
+            { q: "¿Cómo lavamos las frutas y verduras?", a: ["Usar un recipiente con agua", "Con el chorro de la llave", "No lavarlas"], c: 0 },
+            { q: "Tienes una piscina con hojas ¿Cómo lo limpiarías?", a: ["Usar una red y mantener el agua filtrada", "Vaciarla y llenarla", "Agregar más cloro al agua sucia"], c: 0 },
+            { q: "¿Cómo limpiarías la terraza o patio de tu casa?", a: ["Barrer y usar un trapo húmedo", "Usar una manguera a presión", "Esperar a que llueva"], c: 0 },
+            { q: "¿Qué harías si encuentras algas en tu tanque de agua?", a: ["Agregar cloro", "limpiar y desinfectar", "Ignorar el problema"], c: 1 }
+        ];
+
+        const CHALLENGES = [
+            "Tubería descompuesta: Pásense palabras con 'agua'. ¡Quien falle, pierde!",
+            "Basta acuático: Letra 'M'. ¡Palabras con agua en 5 segundos!",
+            "Dibújalo: Dibuja algo sobre el agua. ¡Los demás adivinan!",
+            "Construcción de historia: Empieza con 'Érase una vez...' ¡Continúen!",
+            "Palabra prohibida: Habla 1 min sin decir 'tubería'",
+            "Mímica: Simula ahorrar agua sin hablar",
+            "Preguntas incorrectas: Responde TODO mal",
+            "Confía en ti: Dibuja con ojos cerrados",
+            "Cuchara y pelotita: Transporta 3 metros",
+            "Bottle Challenge: ¡Gira y cae de pie!"
+        ];
+
+        const SUPERLEAK_GAMES = [
+            "Ahorcado", "Ponerle cola al burro", "Timbiriche", "Juego de memoria", 
+            "Crucigrama", "3 en Raya", "Matatena", "Relevo con globos", 
+            "Revienta globos", "Simon dice"
+        ];
+
+        const SUPERLEAK_QUESTIONS = [
+            { q: "Tienes 2 hijos que usan mucha agua. ¿Qué les dices?", a: ["Días específicos + reutilizar", "Prohibir juegos con agua", "Solo cuando llueva"], c: 0 },
+            { q: "Se lavan los dientes con llave abierta. ¿Cómo enseñarles?", a: ["Juego/desafío", "Vaso + gráfica", "Es una regla"], c: 1 },
+            { q: "Bañera llena y desborda. ¿Cómo educar?", a: ["Explicar calmado", "Premio por cerrar", "Cerrar llaves"], c: 0 },
+            { q: "Quieren regar con manguera. ¿Cómo enseñar eficiencia?", a: ["Solo áreas necesarias", "Sistema de riego", "Asignar zonas"], c: 0 },
+            { q: "Fiesta con manguera. ¿Cómo parar el desperdicio?", a: ["Juegos competitivos", "Pistolas de agua", "Actividades mixtas"], c: 0 },
+            { q: "Piscina inflable cada fin. ¿Cómo enseñar reutilización?", a: ["Otras actividades", "Alternar semanas", "Bomba de sumidero"], c: 2 },
+            { q: "Hija llena tina para jugar. ¿Qué hacer?", a: ["Juguetes sin agua", "Tiempo limitado", "Contenedores pequeños"], c: 2 },
+            { q: "Insisten en regar tras lluvia. ¿Cómo convencer?", a: ["Plantas ya hidratadas", "Solo adultos", "No regar"], c: 0 }
+        ];
+
+        // === ESTADO DEL JUEGO ===
+        let players = [];
+        let turnOrder = [];
+        let currentPlayerIndex = 0;
+        let board = [];
+        let gameStarted = false;
+        let diceRolling = false;
+        let jokerUsed = {};
+
+        // === ELEMENTOS DEL DOM ===
+        const screens = {
+            start: document.getElementById('start-screen'),
+            game: document.getElementById('game-screen'),
+            winner: document.getElementById('winner-screen')
+        };
+
+        const modals = {
+            question: document.getElementById('question-modal'),
+            challenge: document.getElementById('challenge-modal'),
+            superleak: document.getElementById('superleak-modal'),
+            joker: document.getElementById('joker-modal'),
+            leak: document.getElementById('leak-modal')
+        };
+
+        // === INICIALIZACIÓN ===
+        document.getElementById('start-game').addEventListener('click', startGame);
+        document.getElementById('play-again').addEventListener('click', () => location.reload());
+
+        function startGame() {
+            // Obtener nombres
+            const names = [
+                document.getElementById('p1-name').value.trim() || 'Jugador 1',
+                document.getElementById('p2-name').value.trim() || 'Jugador 2',
+                document.getElementById('p3-name').value.trim(),
+                document.getElementById('p4-name').value.trim()
+            ].filter(n => n);
+
+            if (names.length < 2 || names.length > 4) {
+                alert('Deben jugar entre 2 y 4 jugadores.');
+                return;
+            }
+
+            players = names.map((name, i) => ({
+                id: i,
+                name,
+                coins: 0,
+                position: 0,
+                joker: false,
+                color: ['#ff3333', '#33cc33', '#3366ff', '#ffcc00'][i]
+            }));
+
+            // Determinar orden
+            players.forEach(p => p.roll = Math.floor(Math.random() * 6) + 1);
+            turnOrder = [...players].sort((a, b) => b.roll - a.roll).map(p => p.id);
+
+            // Crear tablero (50 casillas)
+            createBoard();
+            setupHUD();
+            showScreen('game');
+            startTurn();
+        }
+
+        function createBoard() {
+            const boardEl = document.getElementById('game-board');
+            boardEl.innerHTML = '';
+            board = [];
+
+            // Tipos de casillas
+            const types = ['normal', 'question', 'challenge', 'leak', 'superleak', 'joker'];
+            const specialCount = Math.floor(50 * 0.4);
+
+            // Casilla 0: Inicio
+            board.push({ type: 'start', x: 0, y: 0 });
+            const cell0 = createCell(0, 'start', 'INICIO');
+            boardEl.appendChild(cell0);
+
+            // Casillas 1 a 48
+            for (let i = 1; i < 49; i++) {
+                let type = 'normal';
+                if (i < specialCount && Math.random() < 0.6) {
+                    type = types[Math.floor(Math.random() * (types.length - 1)) + 1];
+                }
+                const x = i % 10;
+                const y = Math.floor(i / 10);
+                board.push({ type, x, y });
+                const cell = createCell(i, type);
+                boardEl.appendChild(cell);
+            }
+
+            // Casilla 49: Final
+            board.push({ type: 'end', x: 9, y: 4 });
+            const cell49 = createCell(49, 'end', 'JARRA');
+            boardEl.appendChild(cell49);
+
+            // Añadir tokens
+            players.forEach(p => {
+                const token = document.createElement('div');
+                token.className = `player-token p${p.id + 1}`;
+                token.style.background = p.color;
+                token.id = `token-${p.id}`;
+                getCellElement(0).appendChild(token);
+            });
+        }
+
+        function createCell(index, type, text = '') {
+            const cell = document.createElement('div');
+            cell.className = `cell ${type}`;
+            cell.dataset.index = index;
+            if (text) cell.textContent = text;
+            return cell;
+        }
+
+        function getCellElement(index) {
+            return document.querySelector(`.cell[data-index="${index}"]`);
+        }
+
+        function setupHUD() {
+            const hud = document.getElementById('hud');
+            hud.innerHTML = '';
+            players.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'player-info';
+                div.innerHTML = `<h3 style="color:${p.color}">${p.name}</h3><div class="coins">💧 ${p.coins}</div>`;
+                div.id = `info-${p.id}`;
+                hud.appendChild(div);
+            });
+        }
+
+        function updateHUD() {
+            players.forEach(p => {
+                const el = document.getElementById(`info-${p.id}`);
+                if (el) el.querySelector('.coins').textContent = `💧 ${p.coins}`;
+            });
+        }
+
+        function showScreen(screen) {
+            Object.values(screens).forEach(s => s.classList.remove('active'));
+            screens[screen].classList.add('active');
+        }
+
+        function startTurn() {
+            const playerId = turnOrder[currentPlayerIndex];
+            const player = players.find(p => p.id === playerId);
+            document.getElementById('status').textContent = `Turno de ${player.name}. ¡Tira el dado!`;
+            document.getElementById('roll-dice').style.display = 'inline-block';
+            document.getElementById('roll-dice').onclick = rollDice;
+        }
+
+        function rollDice() {
+            if (diceRolling) return;
+            diceRolling = true;
+            document.getElementById('roll-dice').style.display = 'none';
+            const dice = document.getElementById('dice');
+            dice.style.display = 'inline-flex';
+            dice.textContent = '?';
+
+            let rolls = 0;
+            const interval = setInterval(() => {
+                dice.textContent = Math.floor(Math.random() * 6) + 1;
+                rolls++;
+                if (rolls > 10) {
+                    clearInterval(interval);
+                    const result = Math.floor(Math.random() * 6) + 1;
+                    dice.textContent = result;
+                    setTimeout(() => movePlayer(result), 800);
+                }
+            }, 100);
+        }
+
+        function movePlayer(steps) {
+            const playerId = turnOrder[currentPlayerIndex];
+            const player = players.find(p => p.id === playerId);
+            const oldPos = player.position;
+            player.position = Math.min(oldPos + steps, 49);
+
+            // Animar movimiento
+            const token = document.getElementById(`token-${player.id}`);
+            const targetCell = getCellElement(player.position);
+            const rect = targetCell.getBoundingClientRect();
+            const boardRect = document.getElementById('game-board').getBoundingClientRect();
+            token.style.left = (rect.left - boardRect.left + 20) + 'px';
+            token.style.top = (rect.top - boardRect.top + 10) + 'px';
+
+            setTimeout(() => {
+                diceRolling = false;
+                document.getElementById('dice').style.display = 'none';
+                handleCell(player.position);
+            }, 600);
+        }
+
+        function handleCell(pos) {
+            const cell = board[pos];
+            const player = players.find(p => p.id === turnOrder[currentPlayerIndex]);
+
+            if (pos === 49) {
+                checkWinCondition();
+                return;
+            }
+
+            if (cell.type === 'normal') {
+                nextTurn();
+                return;
+            }
+
+            if (player.joker && cell.type !== 'question' && cell.type !== 'challenge') {
+                // Comodín protege de castigos
+                player.joker = false;
+                alert(`${player.name} usó su Comodín y evitó el castigo.`);
+                nextTurn();
+                return;
+            }
+
+            switch (cell.type) {
+                case 'question':
+                    showQuestion();
+                    break;
+                case 'challenge':
+                    showChallenge();
+                    break;
+                case 'leak':
+                    if (!player.joker) {
+                        player.coins = Math.max(0, player.coins - 3);
+                        updateHUD();
+                        modals.leak.querySelector('p').innerHTML = `${player.name} perdió <strong>3 AquaCoins</strong>.`;
+                        modals.leak.classList.add('active');
+                        document.getElementById('close-leak').onclick = () => {
+                            modals.leak.classList.remove('active');
+                            nextTurn();
+                        };
+                    } else {
+                        player.joker = false;
+                        nextTurn();
+                    }
+                    break;
+                case 'superleak':
+                    showSuperLeak();
+                    break;
+                case 'joker':
+                    player.joker = true;
+                    modals.joker.classList.add('active');
+                    document.getElementById('close-joker').onclick = () => {
+                        modals.joker.classList.remove('active');
+                        nextTurn();
+                    };
+                    break;
+            }
+        }
+
+        function showQuestion() {
+            const q = QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
+            document.getElementById('question-text').textContent = q.q;
+            const opts = document.getElementById('question-options');
+            opts.innerHTML = '';
+            document.getElementById('question-feedback').textContent = '';
+
+            q.a.forEach((ans, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = ans;
+                btn.onclick = () => {
+                    document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+                    if (i === q.c) {
+                        btn.classList.add('correct');
+                        players.find(p => p.id === turnOrder[currentPlayerIndex]).coins++;
+                        document.getElementById('question-feedback').textContent = '¡Correcto! +1 AquaCoin';
+                    } else {
+                        btn.classList.add('wrong');
+                        const p = players.find(p => p.id === turnOrder[currentPlayerIndex]);
+                        p.coins = Math.max(0, p.coins - 1);
+                        document.getElementById('question-feedback').textContent = 'Incorrecto. -1 AquaCoin';
+                    }
+                    updateHUD();
+                    setTimeout(() => {
+                        modals.question.classList.remove('active');
+                        nextTurn();
+                    }, 2000);
+                };
+                opts.appendChild(btn);
+            });
+
+            modals.question.classList.add('active');
+        }
+
+        function showChallenge() {
+            const challenge = CHALLENGES[Math.floor(Math.random() * CHALLENGES.length)];
+            document.getElementById('challenge-title').textContent = '¡RETO!';
+            document.getElementById('challenge-desc').textContent = challenge;
+            document.getElementById('challenge-area').innerHTML = '<p>¡Tienen 3 minutos!</p>';
+            
+            let time = 180;
+            const timer = document.getElementById('timer');
+            timer.textContent = formatTime(time);
+            const interval = setInterval(() => {
+                time--;
+                timer.textContent = formatTime(time);
+                if (time <= 0) {
+                    clearInterval(interval);
+                    timer.textContent = '¡TIEMPO!';
+                }
+            }, 1000);
+
+            document.getElementById('complete-challenge').onclick = () => {
+                clearInterval(interval);
+                players.find(p => p.id === turnOrder[currentPlayerIndex]).coins += 2;
+                updateHUD();
+                alert('¡Reto completado! +2 AquaCoins');
+                modals.challenge.classList.remove('active');
+                nextTurn();
+            };
+
+            modals.challenge.classList.add('active');
+        }
+
+        function showSuperLeak() {
+            const segments = [
+                { text: '+3 💧', value: 3, color: '#00aa00' },
+                { text: '-2 💧', value: -2, color: '#aa0000' },
+                { text: '+1 💧', value: 1, color: '#00cc00' },
+                { text: '-3 💧', value: -3, color: '#cc0000' },
+                { text: '+5 💧', value: 5, color: '#00ff00' },
+                { text: '¡JOKER!', value: 'joker', color: '#ffcc00' }
+            ];
+
+            const roulette = document.getElementById('roulette');
+            roulette.innerHTML = '';
+            const angle = 360 / segments.length;
+
+            segments.forEach((seg, i) => {
+                const div = document.createElement('div');
+                div.className = 'roulette-segment';
+                div.style.background = seg.color;
+                div.style.transform = `rotate(${i * angle}deg)`;
+                div.textContent = seg.text;
+                roulette.appendChild(div);
+            });
+
+            let spinning = false;
+            document.getElementById('spin-roulette').onclick = () => {
+                if (spinning) return;
+                spinning = true;
+                const spins = 5 + Math.random() * 5;
+                const finalAngle = spins * 360 + Math.random() * 360;
+                roulette.style.transform = `rotate(${finalAngle}deg)`;
+
+                setTimeout(() => {
+                    const normalized = finalAngle % 360;
+                    const index = Math.floor((360 - normalized) / angle) % segments.length;
+                    const result = segments[index];
+                    document.getElementById('roulette-result').textContent = `¡${result.text}!`;
+
+                    const player = players.find(p => p.id === turnOrder[currentPlayerIndex]);
+                    if (result.value === 'joker') {
+                        player.joker = true;
+                    } else {
+                        player.coins = Math.max(0, player.coins + result.value);
+                    }
+                    updateHUD();
+
+                    setTimeout(() => {
+                        modals.superleak.classList.remove('active');
+                        nextTurn();
+                    }, 2000);
+                }, 3200);
+            };
+
+            modals.superleak.classList.add('active');
+        }
+
+        function nextTurn() {
+            currentPlayerIndex = (currentPlayerIndex + 1) % turnOrder.length;
+            setTimeout(startTurn, 800);
+        }
+
+        function checkWinCondition() {
+            const player = players.find(p => p.id === turnOrder[currentPlayerIndex]);
+            if (player.coins >= 10) {
+                endGame(player);
+            } else {
+                document.getElementById('status').textContent = `${player.name} llegó al final, pero necesita 10+ AquaCoins. Sigue jugando...`;
+                nextTurn();
+            }
+        }
+
+        function endGame(winner) {
+            // Conteo final
+            let maxCoins = -1;
+            let winners = [];
+            players.forEach(p => {
+                if (p.coins > maxCoins) {
+                    maxCoins = p.coins;
+                    winners = [p];
+                } else if (p.coins === maxCoins) {
+                    winners.push(p);
+                }
+            });
+
+            if (winners.length === 1 && winners[0].id === winner.id) {
+                document.getElementById('winner-name').textContent = `${winner.name} ¡GANÓ!`;
+            } else {
+                const names = winners.map(w => w.name).join(' y ');
+                document.getElementById('winner-name').textContent = `${names} ¡EMPATE!`;
+            }
+
+            showScreen('winner');
+        }
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+    </script>
+</body>
+</html>
