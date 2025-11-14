@@ -12,6 +12,7 @@
 ## Rol: Diseño de los eventos en los minijuegos
 ## Codigo base por Grok
 ## Reglas del juego
+## Documentación de Mecanicas de juego
 ## Inventario de actividades: Game Design
 
  
