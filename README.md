@@ -101,6 +101,6 @@ gana el numero mayor y pierde el más pequeño.
 
 ![juego prototipado](ASSETS/LeakRangers.PNG)
 
-
+[Pagina Juego](docs/web.html)
 
 
