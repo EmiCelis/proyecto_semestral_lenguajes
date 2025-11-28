@@ -9,7 +9,6 @@
   <meta name="author" content="Guillermo Oropeza, Alex España, Emiliano Celis" />
 
   <style>
-    /* Reset básico */
     * {
       margin: 0;
       padding: 0;
@@ -37,7 +36,6 @@
       display: block;
     }
 
-    /* Layout general */
     header {
       position: fixed;
       top: 0;
@@ -239,52 +237,6 @@
       font-size: 1rem;
     }
 
-    .iframe-wrapper {
-      position: relative;
-      border-radius: 1.25rem;
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      background: radial-gradient(circle at top left, rgba(42, 201, 255, 0.24), rgba(5, 8, 22, 0.95));
-      box-shadow: 0 22px 55px rgba(0, 0, 0, 0.6);
-    }
-
-    .iframe-placeholder {
-      position: relative;
-      padding-top: 56.25%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #dce7ff;
-      font-size: 0.9rem;
-    }
-
-    .iframe-placeholder span {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-      text-align: center;
-      background-image: linear-gradient(135deg, rgba(42, 201, 255, 0.1), transparent);
-    }
-
-    .iframe-placeholder small {
-      display: block;
-      margin-top: 0.35rem;
-      opacity: 0.8;
-      font-size: 0.75rem;
-    }
-
-    iframe.game-frame {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
-    /* Timeline Historia */
     .timeline {
       margin-top: 2rem;
       position: relative;
@@ -327,7 +279,6 @@
       color: #d6dcff;
     }
 
-    /* Mecánicas */
     .rules-grid {
       display: grid;
       grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
@@ -405,7 +356,6 @@
       cursor: help;
     }
 
-    /* Placeholders visuales */
     .placeholder-box {
       margin-top: 1rem;
       padding: 1rem;
@@ -416,7 +366,6 @@
       color: #c6ccff;
     }
 
-    /* Acerca de */
     .team-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -472,7 +421,6 @@
       font-weight: 500;
     }
 
-    /* Responsivo */
     @media (max-width: 768px) {
       nav ul {
         position: absolute;
@@ -518,7 +466,6 @@
         <span></span>
         <span></span>
         <span></span>
-        <span></span>
       </button>
       <nav>
         <ul>
@@ -532,7 +479,7 @@
   </header>
 
   <main>
-    <!-- INICIOS -->
+    <!-- INICIO -->
     <section id="inicio" aria-labelledby="inicio-title">
       <h2 class="section-title">
         Inicio
@@ -558,10 +505,12 @@
             <span class="tag">Conciencia ambiental</span>
           </div>
 
-          <button class="btn-primary" onclick="document.getElementById('game-frame-focus')?.focus();">
+          <!-- AQUÍ PONES EL LINK DEL JUEGO -->
+          <!-- Sustituye TU_URL_DEL_JUEGO por el enlace real, por ejemplo: https://usuario.github.io/LeakRangers/ -->
+          <a class="btn-primary" href="TU_URL_DEL_JUEGO" target="_blank" rel="noopener noreferrer">
             <span class="icon">🎮</span>
             <span>Jugar ahora</span>
-          </button>
+          </a>
 
           <button class="btn-secondary" onclick="document.getElementById('historia').scrollIntoView({behavior: 'smooth'});">
             <span class="icon">📜</span>
@@ -569,23 +518,14 @@
           </button>
         </div>
 
-        <div class="iframe-wrapper" aria-label="Contenedor del videojuego AquaChallenge">
-          <div class="iframe-placeholder">
-            <span>
-              Aquí se mostrará el videojuego terminado de AquaChallenge.
-              <small>
-                Reemplaza este iframe con la URL final del juego, por ejemplo exportado desde Unity WebGL, itch.io o GitHub Pages.
-              </small>
-            </span>
-          </div>
-          <!-- Placeholder del juego: reemplaza src cuando el juego esté listo -->
-          <iframe
-            id="game-frame-focus"
-            class="game-frame"
-            src="https://9000-firebase-studio-1762329620716.cluster-dwvm25yncracsxpd26rcd5ja3m.cloudworkstations.dev/?monospaceUid=767430"
-            title="AquaChallenge - Juego sobre el agua"
-            loading="lazy"
-          ></iframe>
+        <div class="card">
+          <h3>Cómo acceder al juego</h3>
+          <p>
+            El videojuego completo de AquaChallenge se encuentra alojado externamente. Haz clic en el botón <strong>“Jugar ahora”</strong> para abrirlo en una nueva pestaña y probar la versión más reciente del tablero digital.
+          </p>
+          <p>
+            Esta página funciona como ficha técnica del proyecto: resume la historia, las mecánicas y el proceso de desarrollo, mientras que el enlace te lleva al entorno interactivo donde se juega la partida.
+          </p>
         </div>
       </div>
     </section>
@@ -841,7 +781,7 @@
                 </li>
                 <li>
                   Código generado con Grok:
-                  <a href="../ASSETS/Grok.txt" target="_blank" rel="noopener noreferrer">
+                  <a href="ASSETS/Grok.txt" target="_blank" rel="noopener noreferrer">
                     Ver archivo Grok.txt
                   </a>
                 </li>
