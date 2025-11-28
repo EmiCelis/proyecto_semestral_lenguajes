@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AquaChallenge - Juego sobre el Agua</title>
+  <meta name="description" content="Proyecto académico de juego de mesa digitalizado sobre el cuidado del agua para niños. Incluye historia, mecánicas y proceso de desarrollo." />
+  <meta name="keywords" content="juego de mesa, agua, cuidado del agua, proyecto académico, niños" />
+  <meta name="author" content="Guillermo Oropeza, Alex España, Emiliano Celis" />
+
+  <style>
+    /* Reset básico */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1b3257 0, #050816 40%, #02030a 100%);
+      color: #f5f5f5;
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    /* Layout general */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      background: rgba(7, 13, 33, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .nav-container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-badge {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #34d5ff, #0077ff);
+      box-shadow: 0 0 12px rgba(52, 213, 255, 0.8);
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 1rem;
+    }
+
+    nav a {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.5rem 0.75rem;
+      border-radius: 999px;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+
+    nav a:hover {
+      background: linear-gradient(120deg, #2ac9ff, #39e98a);
+      color: #050816;
+      transform: translateY(-1px);
+    }
+
+    .nav-toggle {
+      display: none;
+      cursor: pointer;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-toggle span {
+      width: 20px;
+      height: 2px;
+      background: #ffffff;
+      border-radius: 999px;
+    }
+
+    main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 6rem 1.25rem 3rem;
+    }
+
+    section {
+      padding: 4rem 0 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    section:last-of-type {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .section-title {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-pill {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(57, 233, 138, 0.12);
+      border: 1px solid rgba(57, 233, 138, 0.4);
+      color: #a7ffd0;
+    }
+
+    .section-lead {
+      max-width: 720px;
+      margin-top: 0.5rem;
+      color: #d4d8ff;
+      font-size: 0.98rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 2.5rem;
+      margin-top: 2rem;
+      align-items: flex-start;
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, rgba(42, 201, 255, 0.14), rgba(7, 13, 33, 0.95));
+      border-radius: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 1.5rem 1.6rem;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5);
+    }
+
+    .card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.4rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .tag {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #d7ddff;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding: 0.75rem 1.4rem;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(130deg, #2ac9ff, #39e98a);
+      color: #050816;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(42, 201, 255, 0.4);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+    }
+
+    .btn-primary span.icon {
+      font-size: 1.1rem;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+      box-shadow: 0 16px 40px rgba(42, 201, 255, 0.55);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      border: 1px dashed rgba(255, 255, 255, 0.4);
+      background: transparent;
+      color: #e0e4ff;
+      font-size: 0.8rem;
+      cursor: pointer;
+      margin-top: 0.75rem;
+    }
+
+    .btn-secondary .icon {
+      font-size: 1rem;
+    }
+
+    .iframe-wrapper {
+      position: relative;
+      border-radius: 1.25rem;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: radial-gradient(circle at top left, rgba(42, 201, 255, 0.24), rgba(5, 8, 22, 0.95));
+      box-shadow: 0 22px 55px rgba(0, 0, 0, 0.6);
+    }
+
+    .iframe-placeholder {
+      position: relative;
+      padding-top: 56.25%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #dce7ff;
+      font-size: 0.9rem;
+    }
+
+    .iframe-placeholder span {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      text-align: center;
+      background-image: linear-gradient(135deg, rgba(42, 201, 255, 0.1), transparent);
+    }
+
+    .iframe-placeholder small {
+      display: block;
+      margin-top: 0.35rem;
+      opacity: 0.8;
+      font-size: 0.75rem;
+    }
+
+    iframe.game-frame {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Timeline Historia */
+    .timeline {
+      margin-top: 2rem;
+      position: relative;
+      padding-left: 1.5rem;
+      border-left: 2px solid rgba(57, 233, 138, 0.7);
+    }
+
+    .timeline-item {
+      margin-bottom: 1.5rem;
+      position: relative;
+      padding-left: 1rem;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -1.1rem;
+      top: 0.35rem;
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #2ac9ff, #39e98a);
+      box-shadow: 0 0 12px rgba(57, 233, 138, 0.9);
+    }
+
+    .timeline-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #8df2c0;
+      margin-bottom: 0.1rem;
+    }
+
+    .timeline-item h4 {
+      font-size: 0.98rem;
+      margin-bottom: 0.15rem;
+    }
+
+    .timeline-item p {
+      font-size: 0.9rem;
+      color: #d6dcff;
+    }
+
+    /* Mecánicas */
+    .rules-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .rules-list {
+      list-style: none;
+      counter-reset: pasos;
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .rules-list li {
+      counter-increment: pasos;
+      background: rgba(7, 13, 33, 0.9);
+      border-radius: 1rem;
+      padding: 0.9rem 1rem 0.9rem 1.4rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      position: relative;
+      font-size: 0.92rem;
+    }
+
+    .rules-list li::before {
+      content: "Paso " counter(pasos);
+      position: absolute;
+      left: 0.85rem;
+      top: -0.55rem;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: linear-gradient(130deg, #2ac9ff, #39e98a);
+      color: #050816;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+    }
+
+    .rules-list strong {
+      color: #ffffff;
+    }
+
+    .event-list {
+      list-style: none;
+      display: grid;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .event-item {
+      padding: 0.75rem 0.9rem;
+      border-radius: 0.9rem;
+      background: radial-gradient(circle at left, rgba(42, 201, 255, 0.26), rgba(7, 13, 33, 0.95));
+      border: 1px solid rgba(42, 201, 255, 0.5);
+    }
+
+    .event-title {
+      font-weight: 600;
+      margin-bottom: 0.15rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .event-title span.badge {
+      font-size: 0.7rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 999px;
+      background: rgba(5, 8, 22, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .tooltip {
+      border-bottom: 1px dotted rgba(255, 255, 255, 0.7);
+      cursor: help;
+    }
+
+    /* Placeholders visuales */
+    .placeholder-box {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 1rem;
+      border: 1px dashed rgba(255, 255, 255, 0.3);
+      background: rgba(5, 8, 22, 0.9);
+      font-size: 0.85rem;
+      color: #c6ccff;
+    }
+
+    /* Acerca de */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+    }
+
+    .team-card {
+      background: rgba(7, 13, 33, 0.95);
+      border-radius: 1.1rem;
+      padding: 1rem 1.1rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .team-card h4 {
+      font-size: 0.98rem;
+      margin-bottom: 0.1rem;
+    }
+
+    .team-role {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8df2c0;
+      margin-bottom: 0.4rem;
+    }
+
+    .process-list {
+      list-style: none;
+      font-size: 0.9rem;
+      margin-top: 0.85rem;
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .process-list li::before {
+      content: "• ";
+      color: #39e98a;
+    }
+
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      margin-top: 3rem;
+      padding: 1.5rem 1.25rem 2rem;
+      text-align: center;
+      font-size: 0.82rem;
+      color: #a7afd9;
+      background: radial-gradient(circle at bottom, rgba(0, 119, 255, 0.32), rgba(5, 8, 22, 0.98));
+    }
+
+    footer span.highlight {
+      color: #ffffff;
+      font-weight: 500;
+    }
+
+    /* Responsivo */
+    @media (max-width: 768px) {
+      nav ul {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        left: 0;
+        flex-direction: column;
+        background: rgba(7, 13, 33, 0.98);
+        padding: 0.75rem 1.25rem 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.2s ease;
+      }
+
+      nav ul.open {
+        max-height: 200px;
+      }
+
+      .nav-toggle {
+        display: flex;
+      }
+
+      .grid-2,
+      .rules-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      main {
+        padding-top: 5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-container" aria-label="Barra de navegación principal">
+      <div class="logo">
+        <div class="logo-badge" aria-hidden="true"></div>
+        <span>AquaChallenge</span>
+      </div>
+      <button class="nav-toggle" aria-label="Abrir menú de navegación">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <nav>
+        <ul>
+          <li><a href="#inicio">Inicio</a></li>
+          <li><a href="#historia">Historia</a></li>
+          <li><a href="#mecanicas">Mecánicas</a></li>
+          <li><a href="#acerca">Acerca</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- INICIO -->
+    <section id="inicio" aria-labelledby="inicio-title">
+      <h2 class="section-title">
+        Inicio
+        <span class="section-pill">Versión digital</span>
+      </h2>
+      <p class="section-lead">
+        AquaChallenge es un juego de mesa digitalizado que busca crear conciencia en niñas y niños sobre el uso responsable del agua, mediante partidas cortas, coloridas y llenas de eventos sorpresa.
+      </p>
+
+      <div class="grid-2">
+        <div class="card" aria-label="Descripción del juego AquaChallenge">
+          <h3>Bienvenidos al tablero del agua</h3>
+          <p>
+            El objetivo del juego es acumular la mayor cantidad de <strong>puntos</strong> y <strong>aqua coins</strong> mientras avanzas por un tablero lleno de preguntas, retos y fugas que ponen a prueba tus hábitos de cuidado del agua.
+          </p>
+          <p>
+            Está diseñado para grupos de hasta <strong>4 jugadores</strong>, ideal para aulas o sesiones de juego guiadas donde se refuerzan conceptos de responsabilidad ambiental de forma lúdica y accesible.
+          </p>
+
+          <div class="tag-row">
+            <span class="tag">Niños 5–10 años</span>
+            <span class="tag">Juego de mesa digitalizado</span>
+            <span class="tag">Conciencia ambiental</span>
+          </div>
+
+          <button class="btn-primary" onclick="document.getElementById('game-frame-focus')?.focus();">
+            <span class="icon">🎮</span>
+            <span>Jugar ahora</span>
+          </button>
+
+          <button class="btn-secondary" onclick="document.getElementById('historia').scrollIntoView({behavior: 'smooth'});">
+            <span class="icon">📜</span>
+            <span>Conoce la historia del proyecto</span>
+          </button>
+        </div>
+
+        <div class="iframe-wrapper" aria-label="Contenedor del videojuego AquaChallenge">
+          <div class="iframe-placeholder">
+            <span>
+              Aquí se mostrará el videojuego terminado de AquaChallenge.
+              <small>
+                Reemplaza este iframe con la URL final del juego, por ejemplo exportado desde Unity WebGL, itch.io o GitHub Pages.
+              </small>
+            </span>
+          </div>
+          <!-- Placeholder del juego: reemplaza src cuando el juego esté listo -->
+          <iframe
+            id="game-frame-focus"
+            class="game-frame"
+            src="tu-juego-url"
+            title="AquaChallenge - Juego sobre el agua"
+            loading="lazy"
+          ></iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- HISTORIA -->
+    <section id="historia" aria-labelledby="historia-title">
+      <h2 id="historia-title" class="section-title">
+        Historia
+        <span class="section-pill">Origen del proyecto</span>
+      </h2>
+      <p class="section-lead">
+        AquaChallenge nació como un juego de mesa físico creado para abordar problemáticas cotidianas relacionadas con el uso excesivo del agua, y evolucionó a una versión digital como proyecto semestral académico.
+      </p>
+
+      <div class="card">
+        <p>
+          Desde el inicio, la intención del equipo fue construir una experiencia <strong>casual, clara y didáctica</strong>, más enfocada en generar conversación y reflexión que en contar una historia narrativa compleja. Cada casilla del tablero representa situaciones reales sobre el uso habitual del agua en casa, la escuela o la comunidad.
+        </p>
+        <p>
+          El público principal son niñas y niños, por lo que se buscó un equilibrio entre elementos visuales llamativos y textos sencillos, evitando la sobreestimulación y respetando sus ritmos de atención. El mensaje central es que cada jugador puede aportar su <strong>granito de arena</strong> al cuidado del agua mediante pequeñas acciones diarias.
+        </p>
+
+        <div class="timeline" aria-label="Línea de tiempo del desarrollo del juego">
+          <div class="timeline-item">
+            <div class="timeline-dot" aria-hidden="true"></div>
+            <div class="timeline-label">Fase 1 · Ideación</div>
+            <h4>Concepto del tablero físico</h4>
+            <p>
+              Se definió un tablero con casillas de evento (preguntas, retos, fugas) y una meta final representada por una jarra de agua, junto con el sistema de <em>aqua coins</em> como recurso principal.
+            </p>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-dot" aria-hidden="true"></div>
+            <div class="timeline-label">Fase 2 · Prototipo</div>
+            <h4>Pruebas con jugadores</h4>
+            <p>
+              Se realizaron partidas de prueba para ajustar la dificultad de las preguntas, el impacto de las fugas y la duración de la partida, manteniéndola ágil y entretenida para grupos de 4 jugadores.
+            </p>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-dot" aria-hidden="true"></div>
+            <div class="timeline-label">Fase 3 · Digitalización</div>
+            <h4>Versión videojuego</h4>
+            <p>
+              El juego se llevó a un entorno digital, conservando las reglas esenciales del tablero original e incorporando una interfaz interactiva con dados, turnos, eventos y contador de aqua coins.
+            </p>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-dot" aria-hidden="true"></div>
+            <div class="timeline-label">Fase 4 · Presentación</div>
+            <h4>Integración en la web</h4>
+            <p>
+              Se creó este sitio como contenedor académico del proyecto, documentando la historia, las mecánicas y el proceso de desarrollo para su evaluación final.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MECÁNICAS -->
+    <section id="mecanicas" aria-labelledby="mecanicas-title">
+      <h2 id="mecanicas-title" class="section-title">
+        Mecánicas
+        <span class="section-pill">Cómo se juega</span>
+      </h2>
+      <p class="section-lead">
+        AquaChallenge combina tiradas de dado, avance por casillas y eventos especiales que otorgan o quitan aqua coins, de forma que cada decisión impacta en el marcador final de puntos.
+      </p>
+
+      <div class="rules-grid">
+        <div>
+          <div class="card">
+            <h3>Reglas básicas de la partida</h3>
+            <ul class="rules-list" aria-label="Pasos básicos del juego">
+              <li>
+                <strong>Definir jugadores y turnos.</strong>
+                El juego admite hasta 4 jugadores como máximo. Al inicio, todos tiran el dado y el orden de turnos se define desde la tirada más alta hasta la más baja.
+              </li>
+              <li>
+                <strong>Tirar el dado para avanzar.</strong>
+                En su turno, cada jugador tira el dado. El número obtenido indica cuántas casillas avanza su ficha sobre el tablero.
+              </li>
+              <li>
+                <strong>Resolver la casilla de evento.</strong>
+                Al caer en una casilla, el jugador resuelve el evento correspondiente: responder una pregunta, completar un reto, enfrentar una fuga o usar un comodín.
+              </li>
+              <li>
+                <strong>Ganar y perder aqua coins.</strong>
+                Las respuestas correctas y los retos completados otorgan aqua coins, mientras que las fugas y super fugas pueden restar varias monedas de golpe.
+              </li>
+              <li>
+                <strong>Llegar a la jarra final.</strong>
+                Cuando uno o más jugadores alcanzan la casilla final de la jarra, la partida se cierra y gana quien tenga más puntos y aqua coins acumulados.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div>
+          <div class="card">
+            <h3>Tipos de casillas de evento</h3>
+            <ul class="event-list" aria-label="Eventos del tablero">
+              <li class="event-item">
+                <div class="event-title">
+                  Pregunta
+                  <span class="badge">+1 aqua coin</span>
+                </div>
+                <p>
+                  El jugador responde una pregunta sobre el uso responsable del agua. Si acierta, gana una aqua coin; si falla, pierde una.
+                </p>
+              </li>
+              <li class="event-item">
+                <div class="event-title">
+                  Reto
+                  <span class="badge">+2 / −1 aqua coins</span>
+                </div>
+                <p>
+                  El jugador propone una dinámica para retar a otro jugador. Si gana, recibe dos aqua coins; si pierde, entrega una.
+                </p>
+              </li>
+              <li class="event-item">
+                <div class="event-title">
+                  Fugas
+                  <span class="badge">−3 aqua coins</span>
+                </div>
+                <p>
+                  Representa una fuga de agua importante. El jugador pierde tres aqua coins, reforzando la idea de que las fugas no atendidas generan un gran desperdicio.
+                </p>
+              </li>
+              <li class="event-item">
+                <div class="event-title">
+                  Comodín
+                  <span class="badge">Protección</span>
+                </div>
+                <p>
+                  El jugador obtiene una carta de comodín que puede usar para protegerse de cualquier castigo de casilla futura, como una fuga o super fuga.
+                </p>
+              </li>
+              <li class="event-item">
+                <div class="event-title">
+                  Super Fuga
+                  <span class="badge">Ruleta</span>
+                </div>
+                <p>
+                  Activa una ruleta de consecuencias: según el resultado, puede perjudicar gravemente al jugador o, en algunos casos, otorgar un beneficio por reparar la fuga a tiempo.
+                </p>
+              </li>
+            </ul>
+
+            <div class="placeholder-box">
+              INSERTE DIAGRAMA AQUÍ: esquema del tablero con casillas de <span class="tooltip" title="Pregunta, reto, fugas, comodín, super fuga">eventos</span> y ruta hacia la jarra final.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ACERCA -->
+    <section id="acerca" aria-labelledby="acerca-title">
+      <h2 id="acerca-title" class="section-title">
+        Acerca del proyecto
+        <span class="section-pill">Equipo y proceso</span>
+      </h2>
+      <p class="section-lead">
+        Este proyecto se desarrolló como trabajo semestral, integrando diseño de juego de mesa, programación, arte y documentación técnica, con apoyo de herramientas de inteligencia artificial para acelerar el flujo de trabajo.
+      </p>
+
+      <div class="card">
+        <h3>Propósito didáctico</h3>
+        <p>
+          El juego fue diseñado para niñas y niños de entre <strong>5 y 10 años</strong>, combinando elementos visuales claros y textos sencillos. El objetivo es que entiendan mejor cómo sus hábitos cotidianos impactan en el consumo de agua y cómo pueden ayudar a reducir el desperdicio.
+        </p>
+        <p>
+          Para evitar la sobreestimulación, se priorizaron colores vibrantes pero equilibrados, interfaces simples y partidas de duración moderada, favoreciendo espacios de diálogo guiado por docentes o familiares.
+        </p>
+
+        <div class="team-grid" aria-label="Integrantes del equipo y roles">
+          <div class="team-card">
+            <h4>Guillermo Oropeza</h4>
+            <div class="team-role">Diseño y mecánicas</div>
+            <p>
+              Responsable del diseño del tablero, definición de casillas de evento, balance de aqua coins y adaptación de las reglas del juego para el público infantil.
+            </p>
+          </div>
+          <div class="team-card">
+            <h4>Alex España</h4>
+            <div class="team-role">Programación y sistema de turnos</div>
+            <p>
+              Encargado de la lógica del videojuego digital, implementación de tiradas de dado, avance de fichas, control de turnos y gestión del marcador de puntos.
+            </p>
+          </div>
+          <div class="team-card">
+            <h4>Emiliano Celis</h4>
+            <div class="team-role">Arte y experiencia de usuario</div>
+            <p>
+              Responsable de la dirección visual, creación de elementos gráficos del tablero, fichas y jarra, así como del flujo de pantallas y experiencia de usuario.
+            </p>
+          </div>
+        </div>
+
+        <h3 style="margin-top: 1.75rem;">Proceso de desarrollo</h3>
+        <ul class="process-list" aria-label="Fases del proceso de desarrollo">
+          <li>
+            Ideación del concepto y definición de objetivos de aprendizaje (conciencia sobre el agua, hábitos responsables).
+          </li>
+          <li>
+            Prototipos físicos del tablero y pruebas con jugadores para ajustar reglas, casillas y distribución de aqua coins.
+          </li>
+          <li>
+            Diseño del flujo del juego digital (turnos, tiradas de dado, estados de partida) y diagramas de flujo / UML. INSERTE DIAGRAMA AQUÍ.
+          </li>
+          <li>
+            Implementación del videojuego en motor de juego/entorno web y pruebas de jugabilidad.
+          </li>
+          <li>
+            Integración con esta página web y preparación de materiales para la presentación semestral.
+          </li>
+        </ul>
+
+        <div class="placeholder-box">
+          Asistencia de IA: se utilizaron herramientas como ChatGPT/Grok para propuestas de estructura de código, prompts y textos de apoyo, y generadores de imágenes para explorar estilos visuales de tablero y fichas.
+        </div>
+
+        <h3 style="margin-top: 1.75rem;">Avances y recursos del proyecto</h3>
+        <div aria-label="Recursos y avances documentados">
+          <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+            A continuación se listan algunos de los recursos utilizados durante el desarrollo de AquaChallenge, incluyendo diagramas de flujo, wireframes y apoyo de herramientas de IA.
+          </p>
+
+          <ul class="process-list">
+            <li>
+              Enlace al diagrama de flujo del juego:
+              <a href="https://app.diagrams.net/#G1zgcT0wZQZ46aV5CskNAuEZ0E8Y0BljH_#%7B%22pageId%22%3A%222_yWluqML3qD_DhOYNTh%22%7D" target="_blank" rel="noopener noreferrer">
+                Ver diagrama de flujo
+              </a>
+            </li>
+            <li>
+              Enlace al wireframe del prototipo en Figma:
+              <a href="https://www.figma.com/design/NYiNH9XIPe946x1aG7kvwS/Wireframe-LeakRangers?node-id=18-335&t=j6thM6cJDfznv0j4-1" target="_blank" rel="noopener noreferrer">
+                Ver wireframe del prototipo
+              </a>
+            </li>
+            <li>
+              Listado de herramientas de IA y soporte:
+              <ul style="list-style: none; margin-top: 0.35rem; padding-left: 0;">
+                <li>
+                  <a href="https://grok.com/share/c2hhcmQtNA%3D%3D_ebd48b32-f6f2-46ec-b443-7f322b092a08" target="_blank" rel="noopener noreferrer">
+                    Grok (conversaciones y apoyo de código)
+                  </a>
+                </li>
+                <li>
+                  Código generado con Grok:
+                  <a href="ASSETS/Grok.txt" target="_blank" rel="noopener noreferrer">
+                    Ver archivo Grok.txt
+                  </a>
+                </li>
+                <li>
+                  Panel de gestión del proyecto en Firebase:
+                  <a href="https://studio.firebase.google.com/studio-8995521439" target="_blank" rel="noopener noreferrer">
+                    Firebase Studio
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+
+          <figure style="margin-top: 1rem;">
+            <img src="ASSETS/LeakRangers.PNG" alt="Captura del prototipo jugable de LeakRangers/AquaChallenge" />
+            <figcaption style="font-size: 0.8rem; color: #c6ccff; margin-top: 0.25rem;">
+              Prototipo del juego durante las primeras pruebas de interfaz y tablero.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      Proyecto académico <span class="highlight">AquaChallenge</span> · Juego de mesa digitalizado sobre el cuidado del agua.
+    </p>
+    <p>
+      Desarrollado por <span class="highlight">Guillermo Oropeza, Alex España y Emiliano Celis</span>.
+    </p>
+  </footer>
+
+  <script>
+    const navToggle = document.querySelector(".nav-toggle");
+    const navList = document.querySelector("nav ul");
+
+    if (navToggle && navList) {
+      navToggle.addEventListener("click", () => {
+        navList.classList.toggle("open");
+      });
+
+      navList.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", () => {
+          navList.classList.remove("open");
+        });
+      });
+    }
+  </script>
+</body>
+</html>
